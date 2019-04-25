@@ -32,6 +32,51 @@ void Cube::create_obstacles(){
             current_obs++;
         }
     }
+    std::ofstream file;
+    file.open("obstacles.txt");
+    for(auto i = 0; i < Size; i++){
+        for(auto j = 0; j < Size; j++){
+            for(auto k = 0; k < Size; k++){
+                if(matrix[i][j][k].is_blocked())
+                    file << "1 ";
+                else
+                    file << "0 ";
+            }
+            file << std::endl;
+        }
+        file << std::endl;
+    }
+    file.close();
+
+}
+
+void Cube::read_obstacles(){
+
+    std::ifstream file;
+    int x, y, z;
+    x = y = z = 0;
+    char c;
+    file.open("obstacles.txt");
+    while(file.get(c)){
+        if(c != '\n'){
+            if(c == '1')
+                matrix[x][y][z].set_block();
+            if(z < Size)
+                z++;
+            else{
+                if(y < Size)
+                    y++;
+                else{
+                    if(x < Size)
+                        x++;
+                }
+            }
+        std::cout << "X: " << x << "Y: " << y << "Z: " << z << std::endl;
+        }
+    }
+}
+
+void Cube::print_matrix(){
     for(auto i = 0; i < Size; i++){
         for(auto j = 0; j < Size; j++){
             for(auto k = 0; k < Size; k++){
@@ -44,7 +89,4 @@ void Cube::create_obstacles(){
         }
         std::cout << std::endl;
     }
-}
-
-void Cube::read_obstacles(){
 }

@@ -4,7 +4,9 @@
 
 
 int main(){
-   Cube cubo(10, 50);
-   cubo.create_obstacles();
+   Cube cubo(3, 50);
+   //cubo.create_obstacles();
+   cubo.read_obstacles();
+   cubo.print_matrix();
    return 1;
 }

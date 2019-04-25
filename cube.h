@@ -12,5 +12,5 @@ public:
     Cube(int Size, int obstacle_porcentage);
     void create_obstacles();
     void read_obstacles();
-
+    void print_matrix();
 };
