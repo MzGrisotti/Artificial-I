@@ -24,7 +24,7 @@ Cube::Cube(int Size, int obstacle_porcentage){
 }
 
 void Cube::create_obstacles(){
-    int max_obs = pow(Size, 3) * (obstacle_porcentage/100);
+    int max_obs = pow(Size, 3)* (obstacle_porcentage/100);
     std::cout << "obs: "<< max_obs << std::endl;
     int current_obs = 0;
     int x, y, z;
@@ -32,13 +32,11 @@ void Cube::create_obstacles(){
         x = rand()%Size;
         y = rand()%Size;
         z = rand()%Size;
-
+        //std::cout << "x, y, e z: " << x << y << z <<std::endl;
         if(!(matrix[x][y][z].is_blocked())){
             matrix[x][y][z].set_block();
             current_obs++;
         }
-
-            //std::cout << "x, y, e z: " << x << y << z <<std::endl << "Current OBS: " << current_obs << std::endl;
     }
     std::ofstream file;
     file.open("obstacles.txt");
@@ -148,26 +146,32 @@ std::vector<Cube_unity> Cube::generate_next_nodes(std::tuple<int, int, int> atua
 
    if(atual_x + 1 < Size){
       filhos.push_back(matrix[atual_x+1][atual_y][atual_z]);
+      matrix[atual_x+1][atual_y][atual_z].set_father(atual_x, atual_y, atual_z);
       matrix[atual_x+1][atual_y][atual_z].set_cost(matrix[atual_x+1][atual_y][atual_z].get_cost(), final_pos);
    }
    if(atual_x - 1 >= 0){
       filhos.push_back(matrix[atual_x-1][atual_y][atual_z]);
+      matrix[atual_x-1][atual_y][atual_z].set_father(atual_x, atual_y, atual_z);
       matrix[atual_x-1][atual_y][atual_z].set_cost(matrix[atual_x-1][atual_y][atual_z].get_cost(), final_pos);
    }
    if(atual_y + 1 < Size){
       filhos.push_back(matrix[atual_x][atual_y+1][atual_z]);
+      matrix[atual_x][atual_y+1][atual_z].set_father(atual_x, atual_y, atual_z);
       matrix[atual_x][atual_y+1][atual_z].set_cost(matrix[atual_x][atual_y+1][atual_z].get_cost(), final_pos);
    }
    if(atual_y - 1 >= 0){
       filhos.push_back(matrix[atual_x][atual_y-1][atual_z]);
+      matrix[atual_x][atual_y-1][atual_z].set_father(atual_x, atual_y, atual_z);
       matrix[atual_x][atual_y-1][atual_z].set_cost(matrix[atual_x][atual_y-1][atual_z].get_cost(), final_pos);
    }
    if(atual_z + 1 < Size){
       filhos.push_back(matrix[atual_x][atual_y][atual_z+1]);
+      matrix[atual_x][atual_y][atual_z+1].set_father(atual_x, atual_y, atual_z);
       matrix[atual_x][atual_y][atual_z+1].set_cost(matrix[atual_x][atual_y][atual_z+1].get_cost(), final_pos);
    }
    if(atual_z - 1 >= 0){
       filhos.push_back(matrix[atual_x][atual_y][atual_z-1]);
+      matrix[atual_x][atual_y][atual_z-1].set_father(atual_x, atual_y, atual_z);
       matrix[atual_x][atual_y][atual_z-1].set_cost(matrix[atual_x][atual_y][atual_z-1].get_cost(), final_pos);
    }
 
@@ -183,33 +187,17 @@ bool Cube::find_element(std::vector<Cube_unity> nodes, Cube_unity target){
    return result;
 }
 
-void Cube::set_cost_father(std::tuple<int, int, int> filho, std::tuple<int, int, int> pai){
-   int atual_x, atual_y, atual_z;
-   int pai_x, pai_y, pai_z;
-
-   atual_x = std::get<0>(filho);
-   atual_y = std::get<1>(filho);
-   atual_z = std::get<2>(filho);
-
-   pai_x = std::get<0>(pai);
-   pai_y = std::get<1>(pai);
-   pai_z = std::get<2>(pai);
-
-   matrix[atual_x][atual_y][atual_z].set_father(pai_x, pai_y, pai_z);
-}
-
 std::tuple<int, int, int> Cube::A_star_search(){
    std::vector<Cube_unity> next_nodes;
    std::vector<Cube_unity> marked_nodes;
    std::vector<Cube_unity> children_nodes;
    std::tuple<int, int, int> atual_pos;
-   std::tuple<int, int, int> filho_pos;
+   std::tuple<int, int, int> teste;
    Cube_unity atual_node;
 
    int start_x, start_y, start_z;
    int finish_x, finish_y, finish_z;
    int atual_x, atual_y, atual_z;
-   int teste_x, teste_y, teste_z;
    int node_least_cost;
 
    start_x = std::get<0>(pos_inicial);
@@ -219,8 +207,6 @@ std::tuple<int, int, int> Cube::A_star_search(){
    finish_x = std::get<0>(pos_final);
    finish_y = std::get<1>(pos_final);
    finish_z = std::get<2>(pos_final);
-
-
 
    next_nodes.push_back(matrix[start_x][start_y][start_z]);
 
@@ -234,36 +220,31 @@ std::tuple<int, int, int> Cube::A_star_search(){
       atual_y = std::get<1>(atual_pos);
       atual_z = std::get<2>(atual_pos);
 
-      if(atual_pos == pos_final){
-            std::cout << "Bingo" <<std::endl;
-            std::cout << "X = " << std::get<0>(atual_pos) << " Y = " << std::get<1>(atual_pos) << " Z = " << std::get<2>(atual_pos) << std::endl;
-            std::cout << "Custo: " << atual_node.get_cost() << std::endl;
-            return atual_pos;
-      }
-
       next_nodes.erase(next_nodes.begin() + node_least_cost);
+      marked_nodes.push_back(atual_node);
 
       children_nodes = generate_next_nodes(atual_pos, pos_final);
 
-      //std::cout << "Atual : [" << atual_x << "][" << atual_y << "][" << atual_z << "]" << "custo: " << matrix[atual_x][atual_y][atual_z].get_cost() <<std::endl;
-
       for(auto i = 0; i < children_nodes.size(); i++){
-         filho_pos = children_nodes[i].get_pos();
-         teste_x = std::get<0>(filho_pos);
-         teste_y = std::get<1>(filho_pos);
-         teste_z = std::get<2>(filho_pos);
+         teste = children_nodes[i].get_pos();
+         if(children_nodes[i].get_pos() == pos_final){
+            std::cout << "Bingo" <<std::endl;
+            std::cout << "X = " << std::get<0>(teste) << " Y = " << std::get<1>(teste) << " Z = " << std::get<2>(teste) << std::endl;
+            std::cout << "Custo: " << children_nodes[i].get_cost() << std::endl;
+            return teste;
+         }
 
-         if(!find_element(marked_nodes, children_nodes[i])){
-            if(!find_element(next_nodes, children_nodes[i])){
-               if(!children_nodes[i].is_blocked()){
-                  //std::cout << "Filhos : [" << teste_x << "][" << teste_y << "][" << teste_z << "]" <<std::endl;
-                  set_cost_father(filho_pos, atual_pos);
-                  next_nodes.push_back(children_nodes[i]);
-               }
-            }
+         if(!children_nodes[i].is_marked() && !children_nodes[i].is_blocked() && !find_element(next_nodes, children_nodes[i])){
+            next_nodes.push_back(children_nodes[i]);
          }
       }
-      marked_nodes.push_back(atual_node);
+
+      matrix[atual_x][atual_y][atual_z].set_mark();
+      //atual_node.set_mark();
+
+      //std::cout << "Atual : [" << atual_x << "][" << atual_y << "][" << atual_z << "]" << "custo: " << matrix[atual_x][atual_y][atual_z].get_cost() <<std::endl;
+
+
    }
    std::cout << "Caminho nao encontrado" << std::endl;
    return pos_inicial;
