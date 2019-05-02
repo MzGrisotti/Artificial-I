@@ -23,6 +23,16 @@ Cube::Cube(int Size, int obstacle_porcentage){
     }
 }
 
+Cube::~Cube(){
+   for(auto i = 0; i < Size; i++){
+       for(auto j = 0; j < Size; j++){
+           delete[] matrix[i][j];
+       }
+       delete[] matrix[i];
+   }
+   delete[] matrix;
+   std::cout << "cubo deletado" << std::endl;
+}
 void Cube::create_obstacles(){
     int max_obs = pow(Size, 3) * (obstacle_porcentage/100);
     std::cout << "obs: "<< max_obs << std::endl;
@@ -269,19 +279,21 @@ std::tuple<int, int, int> Cube::A_star_search(){
    return pos_inicial;
 }
 
-void Cube::print_path(std::tuple<int, int, int> result){
+int Cube::print_path(std::tuple<int, int, int> result){
    std::tuple<int, int, int> atual_pos = result;
    std::tuple<int, int, int> aux;
    int atual_x, atual_y, atual_z;
-   int i =0;
-   while(atual_pos != pos_inicial && i < 20){
+   int dist = 0;
+   while(atual_pos != pos_inicial){
       atual_x = std::get<0>(atual_pos);
       atual_y = std::get<1>(atual_pos);
       atual_z = std::get<2>(atual_pos);
-      std::cout << "Atual : [" << atual_x << "][" << atual_y << "][" << atual_z << "]" <<std::endl;
+      //std::cout << "Atual : [" << atual_x << "][" << atual_y << "][" << atual_z << "]" <<std::endl;
       atual_pos = matrix[atual_x][atual_y][atual_z].get_father();
-      i++;
+      dist++;
    }
-   std::cout << "Atual : [" << std::get<0>(pos_inicial) << "][" << std::get<1>(pos_inicial) << "][" << std::get<2>(pos_inicial) << "]" <<std::endl;
+   //std::cout << "Atual : [" << std::get<0>(pos_inicial) << "][" << std::get<1>(pos_inicial) << "][" << std::get<2>(pos_inicial) << "]" <<std::endl;
+   //std::cout << "Distance : " << dist << std::endl;
+   return dist;
 
 }

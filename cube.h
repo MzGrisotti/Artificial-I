@@ -13,6 +13,7 @@ private:
     int Size;
 public:
     Cube(int Size, int obstacle_porcentage);
+    ~Cube();
     void create_obstacles();
     void create_start_finish();
     void read_obstacles();
@@ -21,6 +22,6 @@ public:
     int least_cost(std::vector<Cube_unity> nodes);
     std::vector<Cube_unity> generate_next_nodes(std::tuple<int, int, int> atual_pos, std::tuple<int, int, int> final_pos);
     bool find_element(std::vector<Cube_unity> nodes, Cube_unity target);
-    void print_path(std::tuple<int, int, int> result);
+    int print_path(std::tuple<int, int, int> result);
     void set_cost_father(std::tuple<int, int, int> filho, std::tuple<int, int, int> pai);
 };
